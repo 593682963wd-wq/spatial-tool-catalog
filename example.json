@@ -1,0 +1,10 @@
+{
+  "tools": [
+    {
+      "id": "synthetic-a",
+      "name": "合成工具",
+      "category": "示例",
+      "description": "只读预览"
+    }
+  ]
+}

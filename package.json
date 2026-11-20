@@ -1,0 +1,1 @@
+{"name":"synthetic-spatial-catalog","private":true,"type":"module","scripts":{"test":"node test-camera.mjs"}}

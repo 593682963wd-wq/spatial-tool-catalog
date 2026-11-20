@@ -1,0 +1,360 @@
+{% extends "_base.html" %}
+
+{% block shell_title %}AI 镜界{% endblock %}
+{% block page_title %}AI 镜界 · AI 实景交互{% endblock %}
+{% block body_class %}ai-live-page{% endblock %}
+{% block container_class %}wd-ai-live-shell{% endblock %}
+
+{% block body_contract %}
+<!--
+VERSION: V5 warm-gold holographic glass console.
+THESIS: 这不是普通工具列表，而是一张用户钉住的暖金玻璃空间控制台：合成工具先成为可捏取的发光玻璃方块，再把能力示意投射到右侧完整结果面。
+PRIMARY TYPE: AI / creative；SECONDARY TYPE: transactional workflow。
+GOLDEN PATH: 扫描左侧弧形工具带 -> 选中暖金玻璃方块 -> 拖动查看 -> 金色点状路径连接右侧投影面 -> 明确确认打开原工具。
+COMPOSITION: 最小顶部 UI + 四层黑灰/冷蓝灰空间 + 约 42%W/38-48%H 的暖金选中方块 + 左侧前景半透明弧形工具带 + 右侧完整烟熏玻璃结果面 + 压低的安全说明。
+MOTION: 深度视差、抓取压缩、点状能量转移和结果面接收边展开只解释操作因果；reduced-motion 保留完整静态构图。
+TRUTH: 工具名称、分类、摘要与启动状态来自合成注册表；结果视觉区是“能力示意”，不是实时业务数据；V5 不调用、不依赖 Image2，不伪造真实手或摄像头画面。
+PALETTE: 60-75% 黑灰、10-20% 冷蓝灰、8-15% 暖金、青色不超过 8%；紫色不得成为主导世界。
+-->
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ static_base|default('/static', true) }}/css/ai-live-interaction-clean.css?v=5.3">
+{% endblock %}
+
+{% block content %}
+<div class="wd-mirror" data-ai-live-root data-state="attract" data-quality="balanced" data-role="controller" data-visitor="false">
+  <section class="wd-mirror__stage" data-stage tabindex="-1" aria-label="空间工具目录">
+    <video class="wd-mirror__video" data-camera-video autoplay muted playsinline aria-label="仅在本机显示的摄像头镜像"></video>
+    <canvas class="wd-mirror__canvas" data-scene-canvas aria-hidden="true"></canvas>
+
+    <div class="wd-mirror__fixture" data-camera-fixture aria-hidden="true">
+      <span class="wd-mirror__room-plane wd-mirror__room-plane--rear"></span>
+      <span class="wd-mirror__room-plane wd-mirror__room-plane--floor"></span>
+      <span class="wd-mirror__light-field wd-mirror__light-field--cyan"></span>
+      <span class="wd-mirror__light-field wd-mirror__light-field--gold"></span>
+      <span class="wd-mirror__palm-shadow"></span>
+    </div>
+    <div class="wd-mirror__wash" aria-hidden="true"></div>
+    <div class="wd-mirror__grain" aria-hidden="true"></div>
+
+    <svg class="wd-mirror__bridge" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="mirror-bridge-gradient" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="var(--wd-ai-gold-soft)"/>
+          <stop offset=".54" stop-color="var(--wd-ai-gold)"/>
+          <stop offset="1" stop-color="var(--wd-ai-gold-strong)"/>
+        </linearGradient>
+      </defs>
+      <path data-bridge-shadow d="M 42 45 C 50 51, 58 48, 66 42 S 78 34, 86 35"></path>
+      <path data-bridge-path d="M 42 45 C 50 51, 58 48, 66 42 S 78 34, 86 35"></path>
+      <circle class="wd-mirror__bridge-node wd-mirror__bridge-node--source" data-bridge-source cx="42" cy="45" r=".26"></circle>
+      <circle class="wd-mirror__bridge-node wd-mirror__bridge-node--pulse" data-bridge-pulse cx="64" cy="43" r=".32"></circle>
+      <circle class="wd-mirror__bridge-node wd-mirror__bridge-node--target" data-bridge-target cx="86" cy="35" r=".38"></circle>
+      <circle class="wd-mirror__bridge-particle" r=".13">
+        <animateMotion data-bridge-motion dur="2.2s" repeatCount="indefinite" path="M 42 45 C 50 51, 58 48, 66 42 S 78 34, 86 35"></animateMotion>
+      </circle>
+      <circle class="wd-mirror__bridge-particle wd-mirror__bridge-particle--delay" r=".1">
+        <animateMotion data-bridge-motion begin="-1.1s" dur="2.2s" repeatCount="indefinite" path="M 42 45 C 50 51, 58 48, 66 42 S 78 34, 86 35"></animateMotion>
+      </circle>
+    </svg>
+
+    <header class="wd-mirror__topbar">
+      <div class="wd-mirror__identity">
+        <a class="wd-mirror__mark" href="{{ hub_home|default('/') }}" aria-label="返回工具台">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+        </a>
+        <div>
+          <strong>AI 镜界</strong>
+          <span data-experience-status role="status">等待进入空间目录</span>
+        </div>
+      </div>
+
+      <div class="wd-mirror__controls" aria-label="体验控制">
+        <span class="wd-mirror__privacy-state"><i aria-hidden="true"></i><span data-camera-status>离线演示</span></span>
+        <button class="wd-mirror-control" type="button" data-toggle-visitor aria-pressed="false" aria-label="开启讲解模式">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17V7l8-4 8 4v10l-8 4-8-4Zm4-1.5 4 2 4-2v-7l-4-2-4 2v7Z"/></svg>
+          <span>讲解</span>
+        </button>
+        <button class="wd-mirror-control" type="button" data-toggle-camera aria-label="开启本机镜面">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm12 4 4-2v6l-4-2Z"/></svg>
+          <span>镜面</span>
+        </button>
+
+      </div>
+    </header>
+
+    <section class="wd-mirror-entry" data-consent-panel aria-labelledby="ai-live-title">
+      <p class="wd-mirror-entry__eyebrow"><span></span>AI 实景交互 · 本机运行</p>
+      <h1 id="ai-live-title">让工具展开<br><em>清晰的空间。</em></h1>
+      <p class="wd-mirror-entry__lead">打开后，合成工具会聚成一枚暖金玻璃方块。使用鼠标、触屏或键盘选择工具，查看只读摘要。</p>
+      <div class="wd-mirror-entry__actions">
+        <button class="wd-mirror-action wd-mirror-action--primary" type="button" data-enable-camera>
+          <span class="wd-mirror-action__orb" aria-hidden="true"></span>
+          <span>进入空间目录</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </button>
+        <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-skip-camera>进入目录</button>
+      </div>
+      <p class="wd-mirror-entry__privacy" data-camera-message role="status">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.9 8 7 10 4.1-2 7-5.4 7-10V6l-7-3Zm-3 9 2 2 4-5"/></svg>
+        离线演示 · 键鼠与触屏交互 · 只读工具摘要
+      </p>
+      <div class="wd-mirror-entry__expectation" aria-label="开启后会发生什么">
+        <span>开启后</span>
+        <p>选择工具方块查看摘要，也可在右侧抽屉浏览完整合成目录。</p>
+      </div>
+    </section>
+
+    <div class="wd-mirror-entry-scene" aria-hidden="true">
+      <span class="wd-entry-object wd-entry-object--one"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V6.5A1.5 1.5 0 0 1 6.5 5h7L19 10.5V19H5Zm8-14v6h6M8 14h8M8 17h5"/></svg></i></span>
+      <span class="wd-entry-object wd-entry-object--two"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h14M7 13l3-6 3 9 3-5 2 2M8 20h8"/></svg></i></span>
+      <span class="wd-entry-object wd-entry-object--three"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5V19H5Zm3-10h8M8 13h8M8 17h5"/></svg></i></span>
+      <span class="wd-entry-object wd-entry-object--four"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 4 7 4v4c0 4-2.6 6.8-7 8-4.4-1.2-7-4-7-8V8l7-4Zm-3 8 2 2 4-5"/></svg></i></span>
+      <span class="wd-entry-object wd-entry-object--focus"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V6.5A1.5 1.5 0 0 1 6.5 5h7L19 10.5V19H5Zm8-14v6h6M9 15h6"/></svg></i></span>
+      <span class="wd-entry-object__trail"></span>
+    </div>
+
+    <div class="wd-mirror-coach" data-mirror-coach aria-live="polite">
+      <span data-coach-step>01</span>
+      <div>
+        <strong data-coach-title>移动手掌或鼠标</strong>
+        <p data-coach-message>让工具方块跟随你的位置，近场工具会自动贴近。</p>
+      </div>
+    </div>
+
+    <div class="wd-holo-core" data-holo-anchor aria-label="空间工具方块">
+      <div class="wd-holo-core__shadow" aria-hidden="true"></div>
+      <div class="wd-holo-core__orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="wd-mirror-pinch" aria-hidden="true"><i></i><i></i><span></span></div>
+
+      <main class="wd-mirror-focus" data-lens aria-live="polite">
+        <div class="wd-mirror-focus__content" data-lens-content>
+          <span class="wd-mirror-focus__glyph" data-lens-glyph aria-hidden="true">AI</span>
+          <div class="wd-mirror-focus__copy">
+            <p><span data-lens-category>示例目录</span><i></i><span><b data-lens-index>00</b> / <b data-tool-count>0</b></span></p>
+            <h2 data-lens-title>工具会聚到这枚方块里</h2>
+            <span data-lens-summary>使用鼠标、触摸或键盘选择并查看工具。</span>
+          </div>
+          <button class="wd-mirror-focus__action" type="button" data-open-preview disabled>
+            <span>拖动查看</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="wd-mirror-focus__loading" data-lens-loading hidden role="status">
+          <span aria-hidden="true"></span>
+          <p>正在把合成工具目录聚成方块…</p>
+        </div>
+
+        <div class="wd-mirror-empty" data-empty-state hidden>
+          <p>示例目录没有回应</p>
+          <h2 data-empty-title>没有读到可展示的工具</h2>
+          <span data-empty-message>可以重新连接，或者返回工具台。</span>
+          <div>
+            <button class="wd-mirror-action wd-mirror-action--primary" type="button" data-retry-tools>重新连接</button>
+            <a class="wd-mirror-action wd-mirror-action--quiet" href="{{ hub_home|default('/') }}">返回工具台</a>
+          </div>
+        </div>
+      </main>
+
+      <section class="wd-mirror-ribbon" aria-label="近场合成工具">
+        <button class="wd-mirror-ribbon__arrow wd-mirror-ribbon__arrow--prev" type="button" data-previous-tool aria-label="上一个工具">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>
+        </button>
+        <div class="wd-mirror-ribbon__tools" data-tool-space role="listbox" aria-label="可用工具"></div>
+        <button class="wd-mirror-ribbon__arrow wd-mirror-ribbon__arrow--next" type="button" data-next-tool aria-label="下一个工具">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+        </button>
+        <p class="wd-mirror-ribbon__counter"><b data-tool-current>0</b><span>/</span><span data-tool-count>0</span></p>
+      </section>
+    </div>
+
+    <nav class="wd-offline-controls" aria-label="工具目录与设置">
+        <button class="wd-mirror-control wd-mirror-control--index" type="button" data-toggle-hud aria-expanded="false" aria-label="打开合成工具索引与设置">
+          <span>目录</span><b data-tool-count>0</b>
+        </button>
+    </nav>
+    <canvas class="wd-mirror__hand-occlusion" data-hand-occlusion aria-hidden="true"></canvas>
+
+    <aside class="wd-mirror-result" data-preview-panel hidden aria-labelledby="ai-preview-title">
+      <button class="wd-mirror-result__close" type="button" data-close-preview aria-label="关闭预览">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="wd-mirror-result__heading">
+        <span class="wd-mirror-result__icon" data-preview-glyph aria-hidden="true">AI</span>
+        <div>
+          <p><span data-preview-category>工具</span><i></i><span data-preview-status>standby</span></p>
+          <h2 id="ai-preview-title" data-preview-title>工具名称</h2>
+        </div>
+      </div>
+
+      <div class="wd-mirror-result__visual" aria-hidden="true">
+        <svg class="wd-mirror-result__map" viewBox="0 0 420 300" role="img" aria-label="能力示意网络，不代表实时数据">
+          <defs>
+            <linearGradient id="wd-result-terrain" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="var(--wd-ai-cool)"/>
+              <stop offset=".58" stop-color="var(--wd-ai-gold-soft)"/>
+              <stop offset="1" stop-color="var(--wd-ai-cyan)"/>
+            </linearGradient>
+            <radialGradient id="wd-result-node" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stop-color="var(--wd-text)"/>
+              <stop offset=".42" stop-color="var(--wd-ai-gold)"/>
+              <stop offset="1" stop-color="transparent"/>
+            </radialGradient>
+            <linearGradient id="wd-result-mountain" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="var(--wd-ai-cool)" stop-opacity=".34"/>
+              <stop offset="1" stop-color="var(--wd-ai-canvas-deep)" stop-opacity=".04"/>
+            </linearGradient>
+          </defs>
+          <rect class="wd-result-map__sky" x="0" y="0" width="420" height="300" rx="10"/>
+          <g class="wd-result-map__mountains">
+            <path class="wd-result-map__mountain wd-result-map__mountain--rear" d="M0 214 54 166 92 188 146 104 184 146 236 58 282 112 326 76 420 138V258H0Z"/>
+            <path class="wd-result-map__mountain wd-result-map__mountain--front" d="M0 238 66 202 108 222 160 164 204 206 258 128 312 180 362 142 420 176V272H0Z"/>
+            <path class="wd-result-map__snow" d="M126 132 146 104 164 130 153 125 146 136 138 124ZM214 88 236 58 260 86 247 80 236 94 226 78ZM304 96 326 76 348 103 335 96 327 108 318 94Z"/>
+          </g>
+          <g class="wd-result-map__city-plane">
+            <path d="M28 270 160 198 398 202 272 286Z"/>
+            <path d="M48 270 174 210M88 276 202 206M132 282 232 204M180 286 264 204M232 286 296 204M286 282 330 204M340 274 364 204"/>
+            <path d="M66 252 356 252M94 236 376 236M126 220 390 220"/>
+          </g>
+          <path class="wd-result-map__terrain" d="M18 220 68 164 106 190 154 122 204 160 254 78 312 132 358 96 410 126V270H18Z"/>
+          <path class="wd-result-map__ridge" d="M20 216 72 162 110 186 156 122 205 156 254 82 314 132 400 76"/>
+          <path class="wd-result-map__ridge wd-result-map__ridge--back" d="M30 244 96 196 154 218 218 152 274 188 330 134 410 158"/>
+          <g class="wd-result-map__contours">
+            <path d="M24 230 78 184 112 204 156 154 206 184 252 116 316 158 402 112"/>
+            <path d="M28 246 90 210 132 226 178 184 226 210 276 154 330 178 408 146"/>
+            <path d="M42 260 110 238 156 246 212 222 268 232 326 206 402 198"/>
+          </g>
+          <path class="wd-result-map__route" d="M24 238 C72 214 93 168 142 172 S214 244 264 196 327 118 402 104"/>
+          <path class="wd-result-map__route wd-result-map__route--gold" d="M38 112 C92 132 126 95 172 118 S246 170 296 136 342 78 394 88"/>
+          <path class="wd-result-map__route wd-result-map__route--branch" d="M82 224 C112 204 128 192 142 172 M264 196 C292 210 326 218 370 202"/>
+          <g class="wd-result-map__grid">
+            <path d="M44 252H394M54 220H384M66 188H372M80 156H358M96 124H342"/>
+            <path d="M74 264 136 104M142 270 180 72M224 266 222 58M310 260 268 82M384 246 318 104"/>
+          </g>
+          <g class="wd-result-map__roads">
+            <path d="M18 274 C74 248 98 234 132 206 S194 172 236 186 298 228 416 178"/>
+            <path d="M30 286 C84 254 118 262 166 226 S242 178 292 190 340 214 408 204"/>
+            <path d="M88 284 C116 252 128 222 132 206 M166 226 C194 240 214 258 230 286 M292 190 C314 160 328 136 346 110"/>
+          </g>
+          <g class="wd-result-map__buildings">
+            <path d="M214 244v-26h12v26M232 238v-42h13v42M252 248v-34h11v34M270 238v-52h14v52"/>
+            <path d="M102 260v-22h10v22M116 254v-36h12v36M132 262v-27h9v27"/>
+          </g>
+          <g class="wd-result-map__bars">
+            <path d="M340 42h54M340 58h38M340 74h48M340 90h30"/>
+            <path d="M342 126v42M356 112v56M370 138v30M384 98v70M398 120v48"/>
+          </g>
+          <g class="wd-result-map__nodes">
+            <circle cx="78" cy="205" r="14"/>
+            <circle cx="164" cy="116" r="12"/>
+            <circle cx="258" cy="190" r="15"/>
+            <circle cx="334" cy="98" r="13"/>
+          </g>
+        </svg>
+        <b data-preview-visual-label>能力示意 · 非实时数据</b>
+      </div>
+
+      <p class="wd-mirror-result__summary" data-preview-summary>工具摘要</p>
+      <div class="wd-mirror-result__truth">
+        <span>你将打开什么</span>
+        <strong>来自工具台实时注册表的真实能力摘要</strong>
+        <p data-preview-message>确认后才会调用原工具的权限与启动链路。</p>
+      </div>
+
+      <div class="wd-mirror-result__actions">
+        <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-return-tool>放回方块</button>
+        <button class="wd-mirror-action wd-mirror-action--confirm" type="button" data-confirm-launch>
+          <span>确认打开</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </button>
+      </div>
+      <p class="wd-mirror-result__status" data-launch-message role="status">等待明确确认。</p>
+    </aside>
+
+    <div class="wd-mirror-pointer" data-gesture-pointer aria-hidden="true">
+      <span class="wd-mirror-pointer__aura"></span>
+      <span class="wd-mirror-pointer__token"><b data-pointer-glyph>+</b></span>
+      <span class="wd-ai-pointer__label">指向</span>
+    </div>
+    <div class="wd-mirror-impact" data-confirm-flash aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+    <aside class="wd-mirror-index" data-hud hidden aria-label="合成工具索引与设置">
+      <div class="wd-mirror-index__head">
+        <div>
+          <p>第二层 · 合成工具目录</p>
+          <h2>如果方块里没有你要的，直接搜索。</h2>
+        </div>
+        <button class="wd-mirror-control wd-mirror-control--close" type="button" data-close-hud aria-label="关闭工具索引与设置">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <label class="wd-mirror-search">
+        <span class="wd-mirror-sr-only">搜索工具</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 20-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
+        <input type="search" data-tool-search placeholder="输入工具名称或能力" autocomplete="off">
+      </label>
+      <nav class="wd-mirror-categories" data-category-rail aria-label="工具分类"></nav>
+      <div class="wd-mirror-search-results" data-search-results aria-live="polite"></div>
+
+      <details class="wd-mirror-index__settings">
+        <summary>设备、体验与多屏设置</summary>
+        <div class="wd-mirror-index__status">
+          <span class="wd-badge wd-badge--gray" data-gesture-status>键鼠可用</span>
+          <span class="wd-badge wd-badge--green" data-sync-status>单屏就绪</span>
+        </div>
+        <label class="wd-mirror-index__field">
+          <span>体验质量</span>
+          <select class="wd-select" data-quality-select>
+            <option value="high">高</option>
+            <option value="balanced" selected>平衡</option>
+            <option value="low">低 GPU</option>
+            <option value="reduced">减少动态</option>
+          </select>
+        </label>
+        <div class="wd-mirror-index__actions">
+          <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-open-multiscreen>打开真实多屏</button>
+          <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-toggle-simulator>查看同窗三屏</button>
+        </div>
+        <div class="wd-mirror-simulator" data-simulator hidden aria-label="同窗三屏模拟">
+          <span data-sim-role="left">侧屏 · 工具空间</span>
+          <span data-sim-role="center">主屏 · 指针交互</span>
+          <span data-sim-role="right">侧屏 · 当前结果</span>
+        </div>
+        <dl class="wd-mirror-diagnostics">
+          <div><dt>渲染</dt><dd data-hud-renderer>初始化</dd></div>
+          <div><dt>帧率</dt><dd><span data-hud-fps>0</span> FPS</dd></div>
+          <div><dt>帧时</dt><dd data-hud-frame>0 ms</dd></div>
+          <div><dt>同步</dt><dd data-hud-sync>BroadcastChannel</dd></div>
+          <div><dt>会话</dt><dd data-hud-memory>0 peers</dd></div>
+        </dl>
+      </details>
+
+      <details class="wd-mirror-index__fixtures">
+        <summary>开发调试</summary>
+        <div>
+          <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-run-gesture-fixture>运行手势 fixture</button>
+          <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-force-model-failure>模拟模型失败</button>
+          <button class="wd-mirror-action wd-mirror-action--quiet" type="button" data-force-webgl-failure>模拟 WebGL 降级</button>
+        </div>
+      </details>
+    </aside>
+
+    <div class="wd-mirror-visitor" data-visitor-note hidden role="status">
+      <span>自动讲解中</span>
+      <p>只读轮换合成工具，不会启动任何业务功能。</p>
+    </div>
+
+    <p class="wd-mirror-sr-only" data-live-announcer aria-live="polite"></p>
+  </section>
+
+  <noscript><div class="wd-alert wd-alert--warn">需要启用 JavaScript 才能运行 AI 镜界；工具台其他页面不受影响。</div></noscript>
+  <script id="ai-live-config" type="application/json">{{ ai_live_config|safe }}</script>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ static_base|default('/static', true) }}/js/ai-live-clean/app.js?v=5.3"></script>
+{% endblock %}

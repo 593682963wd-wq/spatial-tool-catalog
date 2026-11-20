@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import { CameraController } from "./static/js/ai-live-clean/camera.js";
+let status;
+const camera=new CameraController({video:{},onStatus:value=>status=value});
+assert.equal(camera.capability().ok,false);
+assert.equal(camera.setInferenceFps(30),false);
+assert.equal(await camera.start(),false);
+assert.equal(status.state,"unavailable");
+assert.equal(camera.stream,null);
+camera.stop();camera.simulateModelFailure();assert.equal(camera.inferenceFps,0);
+console.log("disabled-camera contract: passed");
